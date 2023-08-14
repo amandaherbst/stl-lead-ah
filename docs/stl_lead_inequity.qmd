@@ -1,0 +1,75 @@
+---
+title: "EDS 221 Day 1 Task"
+format: html
+editor: visual
+execute: 
+  warning: FALSE
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+stl_lead <- read_csv(here::here("data", "stl_lead.csv")) %>%
+  janitor::clean_names()
+  
+```
+
+```{r}
+# data exploration
+head(stl_lead)
+
+names(stl_lead)
+
+summary(stl_lead)
+```
+
+```{r}
+# create new data frame with new column "prop_white"
+stl_lead_prop <- as.data.frame(stl_lead) %>% 
+  dplyr::mutate(prop_white = (white/total_pop) * 100)
+```
+
+## Scatterplot
+
+```{r}
+# scatterplot of percentage of children in each census tract w/ eelvated blood lead levels vs. % of each census tract identifying as white
+stl_lead_plot <- ggplot(data = stl_lead_prop, 
+       aes(x = prop_white, 
+           y = pct_elevated)) + 
+  geom_point(aes(color = prop_white), 
+             show.legend = FALSE) + 
+  scale_color_gradient(low = "blue", high = "orange") + 
+  labs(x = "% population identifying as white", 
+       y = "% children w/ elevated blood lead levels")
+
+stl_lead_plot
+```
+
+As the percentage of people identifying as white in the census increases, we see an overall drop in the percent of children with elevated blood lead levels.
+
+```{r}
+ggsave(plot = stl_lead_plot, here::here("figs", "prop_white_elevated.png"), height = 5, width = 6)
+```
+
+## Histogram
+
+```{r}
+stl_lead_hist <- ggplot(data = stl_lead_prop,
+       aes(x = pct_elevated)) + 
+  geom_histogram(fill = "red", 
+                 color = "white",
+                 size = 0.5) +
+  labs(x = "% children with elevated blood lead levels", 
+       y = " ", 
+       title = "Elevated blood lead levels") +
+  theme_classic()
+
+stl_lead_hist
+```
+
+```{r}
+ggsave(plot = stl_lead_hist, here::here("figs", "stl_lead_hist.jpg"), height = 5, width = 6 )
+```
